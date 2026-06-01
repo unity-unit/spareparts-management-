@@ -8,14 +8,19 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: 'parking_record_id, amount_paid, and payment_date are required' });
   }
   try {
-    await pool.execute(
+    const [result] = await pool.execute(
       'INSERT INTO payment (parking_record_id, amount_paid, payment_date) VALUES (?, ?, ?)',
       [parking_record_id, amount_paid, payment_date]
     );
-    res.status(201).json({ message: 'Payment recorded successfully' });
+    res.status(201).json({ message: 'Payment recorded successfully', data: { parking_record_id, amount_paid, payment_date } });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error inserting payment', error: error.message });
+    console.error('❌ Payment Insert Error:', error);
+    res.status(500).json({ 
+      message: 'Error inserting payment', 
+      error: error.message,
+      code: error.code,
+      details: error.sqlMessage || 'Check server logs for details'
+    });
   }
 });
 

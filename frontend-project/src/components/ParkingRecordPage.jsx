@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+import API from '../api';
 
 function formatDateTimeValue(value) {
   if (!value) return '';
@@ -19,7 +17,7 @@ export default function ParkingRecordPage() {
 
   const fetchRecords = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/records`);
+      const response = await API.get('/records');
       setRecords(response.data);
     } catch (error) {
       setMessage('Unable to fetch records');
@@ -28,10 +26,7 @@ export default function ParkingRecordPage() {
 
   const fetchMeta = async () => {
     try {
-      const [carsRes, slotsRes] = await Promise.all([
-        axios.get(`${API_BASE}/cars`),
-        axios.get(`${API_BASE}/slots`)
-      ]);
+      const [carsRes, slotsRes] = await Promise.all([API.get('/cars'), API.get('/slots')]);
       setCars(carsRes.data);
       setSlots(slotsRes.data);
     } catch (error) {
@@ -48,13 +43,13 @@ export default function ParkingRecordPage() {
     event.preventDefault();
     try {
       if (editId) {
-        await axios.put(`${API_BASE}/records/${editId}`, {
+        await API.put(`/records/${editId}`, {
           ...form,
           duration: form.duration !== '' ? Number(form.duration) : null
         });
         setMessage('Parking record updated successfully');
       } else {
-        await axios.post(`${API_BASE}/records`, {
+        await API.post('/records', {
           ...form,
           duration: form.duration !== '' ? Number(form.duration) : null
         });
@@ -82,7 +77,7 @@ export default function ParkingRecordPage() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_BASE}/records/${id}`);
+      await API.delete(`/records/${id}`);
       setMessage('Parking record deleted successfully');
       await fetchRecords();
     } catch (error) {

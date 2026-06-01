@@ -29,10 +29,15 @@ router.post('/', async (req, res) => {
       'INSERT INTO parking_record (plate_number, slot_number, entry_time, exit_time, duration) VALUES (?, ?, ?, ?, ?)',
       [plate_number, slot_number, entry_time, exit_time || null, duration || null]
     );
-    res.status(201).json({ message: 'Parking record created', id: result.insertId });
+    res.status(201).json({ message: 'Parking record created', id: result.insertId, data: { plate_number, slot_number, entry_time } });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error inserting parking record', error: error.message });
+    console.error('❌ Parking Record Insert Error:', error);
+    res.status(500).json({ 
+      message: 'Error inserting parking record', 
+      error: error.message,
+      code: error.code,
+      details: error.sqlMessage || 'Check server logs for details'
+    });
   }
 });
 

@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+import API from '../api';
 
 export default function ReportPage() {
   const [records, setRecords] = useState([]);
@@ -12,10 +10,7 @@ export default function ReportPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [recordsRes, paymentsRes] = await Promise.all([
-          axios.get(`${API_BASE}/records`),
-          axios.get(`${API_BASE}/payments`)
-        ]);
+        const [recordsRes, paymentsRes] = await Promise.all([API.get('/records'), API.get('/payments')]);
         const recordsData = recordsRes.data;
         setRecords(recordsData);
         setPayments(paymentsRes.data);

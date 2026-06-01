@@ -8,14 +8,19 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: 'slot_number and slot_status are required' });
   }
   try {
-    await pool.execute(
+    const [result] = await pool.execute(
       'INSERT INTO parking_slot (slot_number, slot_status) VALUES (?, ?)',
       [slot_number, slot_status]
     );
-    res.status(201).json({ message: 'Parking slot inserted successfully' });
+    res.status(201).json({ message: 'Parking slot inserted successfully', data: { slot_number, slot_status } });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error inserting parking slot', error: error.message });
+    console.error('❌ Parking Slot Insert Error:', error);
+    res.status(500).json({ 
+      message: 'Error inserting parking slot', 
+      error: error.message,
+      code: error.code,
+      details: error.sqlMessage || 'Check server logs for details'
+    });
   }
 });
 

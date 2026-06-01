@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+import API from '../api';
 
 export default function CarPage() {
   const [form, setForm] = useState({ plate_number: '', driver_name: '', phone_number: '' });
@@ -10,7 +8,7 @@ export default function CarPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await axios.post(`${API_BASE}/cars`, form);
+      await API.post('/cars', form);
       setMessage('Car inserted successfully');
       setForm({ plate_number: '', driver_name: '', phone_number: '' });
     } catch (error) {

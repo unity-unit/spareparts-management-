@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+import API from '../api';
 
 export default function PaymentPage() {
   const [records, setRecords] = useState([]);
@@ -10,7 +8,7 @@ export default function PaymentPage() {
 
   const fetchRecords = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/records`);
+      const response = await API.get('/records');
       setRecords(response.data);
     } catch (error) {
       setMessage('Unable to load parking records');
@@ -24,7 +22,7 @@ export default function PaymentPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await axios.post(`${API_BASE}/payments`, {
+      await API.post('/payments', {
         parking_record_id: Number(form.parking_record_id),
         amount_paid: Number(form.amount_paid),
         payment_date: form.payment_date

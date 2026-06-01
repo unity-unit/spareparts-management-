@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+import API from '../api';
 
 export default function ParkingSlotPage() {
   const [form, setForm] = useState({ slot_number: '', slot_status: 'available' });
@@ -10,7 +8,7 @@ export default function ParkingSlotPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await axios.post(`${API_BASE}/slots`, form);
+      await API.post('/slots', form);
       setMessage('Parking slot inserted successfully');
       setForm({ slot_number: '', slot_status: 'available' });
     } catch (error) {

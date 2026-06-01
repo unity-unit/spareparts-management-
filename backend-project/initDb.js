@@ -33,6 +33,37 @@ async function initDatabase() {
     await connection.query(schema);
   }
 
+  // Optional: seed an admin user when SEED_ADMIN=true and credentials provided
+  const seedAdmin = process.env.SEED_ADMIN === 'true';
+  const seedUser = process.env.SEED_ADMIN_USERNAME || 'admin';
+  const seedPass = process.env.SEED_ADMIN_PASSWORD || 'adminpass';
+  if (seedAdmin) {
+    try {
+      // hash password using bcryptjs if available, otherwise insert plain (less secure)
+      let hash = null;
+      try {
+        const bcrypt = require('bcryptjs');
+        hash = await bcrypt.hash(seedPass, 10);
+      } catch (e) {
+        console.warn('bcryptjs not available, inserting plaintext password for seeded admin');
+      }
+
+      const [existing] = await connection.query('SELECT id FROM users WHERE username = ?', [seedUser]);
+      if (!existing || existing.length === 0) {
+        if (hash) {
+          await connection.query('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)', [seedUser, hash, 'admin']);
+        } else {
+          await connection.query('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)', [seedUser, seedPass, 'admin']);
+        }
+        console.log(`Seeded admin user: ${seedUser}`);
+      } else {
+        console.log('Admin user already exists, skipping seed');
+      }
+    } catch (err) {
+      console.error('Error seeding admin user:', err.message || err);
+    }
+  }
+
   await connection.end();
   console.log(`Database initialized: ${DB_NAME}`);
 }
